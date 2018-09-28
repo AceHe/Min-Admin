@@ -66,7 +66,7 @@
 		</el-dialog>
 		<!-- end of 新增分类dialog -->
 
-		<!-- start of 新增分类dialog -->
+		<!-- start of 修改分类dialog -->
 		<el-dialog 
 			title="修改分类" 
 			width="40%"
@@ -76,7 +76,7 @@
 				<el-form-item label="修改前分类名称:">
 					<el-tag size="medium">{{ changeCateform.beforName }}</el-tag>
 				</el-form-item>
-				<el-form-item label="修改后分类名称:" label-width="120px">
+				<el-form-item label="修改后分类名称:">
 					<el-input v-model="changeCateform.afterName"></el-input>
 				</el-form-item>
 			</el-form>
@@ -85,7 +85,7 @@
 				<el-button type="primary" @click="submitChangeCate">确 定</el-button>
 			</div>
 		</el-dialog>
-		<!-- end of 新增分类dialog -->
+		<!-- end of 修改分类dialog -->
 
 
 	</div>
@@ -134,6 +134,20 @@
 				})
 			},
 
+			// 新增分类
+			axiosAddCategorized( cate ) {
+				addCategorized( cate ).then(res =>{
+					if( res.code == 0 ){
+						this.axiosGetCategorized();
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+				})
+			},
+
 			// 删除分类
 			axiosDelCategorized( cate ) {
 				delCategorized( cate ).then(res =>{
@@ -154,16 +168,7 @@
 
 			// 新增分类
 			submitAddNewCate() {
-				addCategorized( this.newCateform.name ).then(res =>{
-					if( res.code == 0 ){
-						this.axiosGetCategorized();
-					}else {
-						this.$notify.error({
-							title: '错误',
-							message: res.message
-						});
-					}
-				})
+				this.axiosAddCategorized(this.newCateform.name);
 			},
 
 			// 删除分类
