@@ -29,3 +29,15 @@ export function delCategorized(cate) {
     }
   })
 }
+
+// 修改分类
+export function changeCategorized(oldc, newc) {
+  return request({
+    url: '/blog/categorized',
+    method: 'PUT',
+    data: {
+      oldcate: oldc,
+      newcate: newc,
+    }
+  })
+}

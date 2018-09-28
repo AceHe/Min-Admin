@@ -5,7 +5,6 @@
 			<el-col :span="24">
 				<el-button type="primary"
 					@click="dialogNewCateVisible = true">新增分类</el-button>
-				<el-button type="danger">批量删除</el-button>
 			</el-col>
 		</el-row>
 	
@@ -39,7 +38,7 @@
 				<template slot-scope="scope">
 					<el-button
 						size="mini"
-						@click="handleEdit( scope.row.cate )">修改</el-button>
+						@click="handChangeCate( scope.row.cate )">修改</el-button>
 					<el-button
 						size="mini"
 						type="danger"
@@ -53,9 +52,10 @@
 		<el-dialog 
 			title="新增分类" 
 			width="40%"
+			label-width="120px"
 			:visible.sync="dialogNewCateVisible">
 			<el-form :model="newCateform">
-				<el-form-item label="分类名称" label-width="120px">
+				<el-form-item label="分类名称:">
 					<el-input v-model="newCateform.name"></el-input>
 				</el-form-item>
 			</el-form>
@@ -66,12 +66,33 @@
 		</el-dialog>
 		<!-- end of 新增分类dialog -->
 
+		<!-- start of 新增分类dialog -->
+		<el-dialog 
+			title="修改分类" 
+			width="40%"
+			label-width="120px"
+			:visible.sync="dialogChangeCateVisible">
+			<el-form :model="changeCateform">
+				<el-form-item label="修改前分类名称:">
+					<el-tag size="medium">{{ changeCateform.beforName }}</el-tag>
+				</el-form-item>
+				<el-form-item label="修改后分类名称:" label-width="120px">
+					<el-input v-model="changeCateform.afterName"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogChangeCateVisible = false">取 消</el-button>
+				<el-button type="primary" @click="submitChangeCate">确 定</el-button>
+			</div>
+		</el-dialog>
+		<!-- end of 新增分类dialog -->
+
 
 	</div>
 </template>
 
 <script>
-	import { getCategorized, addCategorized, delCategorized } from '@/api/blog'
+	import { getCategorized, addCategorized, delCategorized, changeCategorized } from '@/api/blog/categorized'
 
 	export default {
 		name: 'Categorized',
@@ -79,10 +100,17 @@
 			return {
 				tableData: [],  // 分类数据
 
-				dialogNewCateVisible: false, // 新增分类dialog
+				dialogNewCateVisible: false,    // 新增分类dialog
+				dialogChangeCateVisible: false, // 修改分类dialog
 				newCateform: {
 					name: ''
-				}
+				},
+				changeCateform: {
+					beforName: '',
+					afterName: '',
+				},
+
+
 			}
 		},
 		created() {
@@ -94,8 +122,13 @@
 			axiosGetCategorized() {
 				getCategorized().then(res => {
 					this.tableData = res.data;
+
 					this.newCateform.name = '';
 					this.dialogNewCateVisible = false;
+
+					this.changeCateform.beforName = '';
+					this.changeCateform.afterName = '';
+					this.dialogChangeCateVisible = false;
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -104,6 +137,15 @@
 			// 删除分类
 			axiosDelCategorized( cate ) {
 				delCategorized( cate ).then(res =>{
+					this.axiosGetCategorized();
+				}).catch(error => {
+					console.log(error) // for debug
+				})
+			},
+
+			// 修改分类
+			axiosChangeCategorized( oldc, newc ) {
+				changeCategorized( oldc, newc ).then(res =>{
 					this.axiosGetCategorized();
 				}).catch(error => {
 					console.log(error) // for debug
@@ -135,9 +177,17 @@
 				}).catch(action => {});
 			},
 
-			handleEdit(index, row) {
-				console.log(index, row);
+			// 修改分类-dialog
+			handChangeCate( cate ) {
+				this.changeCateform.beforName = cate;
+				this.changeCateform.afterName = cate;
+				this.dialogChangeCateVisible = true;
 			},
+
+			// 修改分类-提交
+			submitChangeCate(){
+				this.axiosChangeCategorized( this.changeCateform.beforName, this.changeCateform.afterName );
+			}
 
 		}
 	}
