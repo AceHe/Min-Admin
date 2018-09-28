@@ -1,5 +1,5 @@
 /**
- * Created by jiachenpan on 16/11/18.
+ * 时间格式化
  */
 
 export function parseTime(time, cFormat) {

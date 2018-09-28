@@ -8,7 +8,7 @@
 			</el-col>
 		</el-row>
 	
-		<!-- start of 分类表格 -->
+		<!-- start of 标签表格 -->
 		<el-table
 			:data="tableData"
 			stripe
@@ -20,7 +20,7 @@
 			</el-table-column>
 
 			<el-table-column
-				label="分类"
+				label="标签"
 				width="200">
 				<template slot-scope="scope">
 					<el-tag size="medium">{{ scope.row.tag }}</el-tag>
@@ -46,7 +46,7 @@
 				</template>
 			</el-table-column>
 		</el-table>
-		<!-- end of 分类表格 -->
+		<!-- end of 标签表格 -->
 
 		<!-- start of 新增标签dialog -->
 		<el-dialog 
@@ -98,7 +98,7 @@
 		name: 'Tag',
 		data() {
 			return {
-				tableData: [],  // 分类数据
+				tableData: [],  // 标签数据
 
 				dialogNewTagVisible: false,    // 新增标签dialog
 				dialogChangeTagVisible: false, // 修改标签dialog
@@ -184,14 +184,14 @@
 				}).catch(action => {});
 			},
 
-			// 修改分类-dialog
+			// 修改标签-dialog
 			handChangeTag( tag ) {
 				this.changeTagform.beforName = tag;
 				this.changeTagform.afterName = tag;
 				this.dialogChangeTagVisible = true;
 			},
 
-			// 修改分类-提交
+			// 修改标签-提交
 			submitChangeTag(){
 				let data = {
 					oldtag : this.changeTagform.beforName,

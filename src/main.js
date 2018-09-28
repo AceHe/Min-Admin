@@ -15,6 +15,10 @@ import store from './store'
 import '@/icons' // icon
 import '@/permission' // permission control 验证权限 
 
+import mavonEditor from 'mavon-editor' //markdown编辑器
+import 'mavon-editor/dist/css/index.css'
+Vue.use(mavonEditor)
+
 Vue.use(ElementUI, { locale })
 
 Vue.config.productionTip = false
