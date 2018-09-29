@@ -15,7 +15,7 @@
 			style="width: 100%">
 
 			<el-table-column
-				type="selection"
+				type="index"
 				width="55">
 			</el-table-column>
 
@@ -38,11 +38,11 @@
 				<template slot-scope="scope">
 					<el-button
 						size="mini"
-						@click="handChangeTag( scope.row.tag )">修改</el-button>
+						@click="handChangeTag( scope.row.tag, scope.row.id )">修改</el-button>
 					<el-button
 						size="mini"
 						type="danger"
-						@click="handDelTag( scope.row.tag )">删除</el-button>
+						@click="handDelTag( scope.row.tag, scope.row.id )">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -108,6 +108,7 @@
 				changeTagform: {
 					beforName: '',
 					afterName: '',
+					index: '',
 				},
 
 
@@ -128,6 +129,7 @@
 
 					this.changeTagform.beforName = '';
 					this.changeTagform.afterName = '';
+					this.changeTagform.index = '';
 					this.dialogChangeTagVisible = false;
 				}).catch(error => {
 					console.log(error) // for debug
@@ -173,28 +175,29 @@
 			},
 
 			// 删除标签
-			handDelTag( tag ){
+			handDelTag( tag, index ){
 				this.$confirm('成功删除后，所有文章不再包含此标签！', '删除 '+tag+ ' 标签', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
-					let data = { tag: tag };
+					let data = { id: index };
 					this.axiosDelTags( data );
 				}).catch(action => {});
 			},
 
 			// 修改标签-dialog
-			handChangeTag( tag ) {
+			handChangeTag( tag, index ) {
 				this.changeTagform.beforName = tag;
 				this.changeTagform.afterName = tag;
+				this.changeTagform.index = index;
 				this.dialogChangeTagVisible = true;
 			},
 
 			// 修改标签-提交
 			submitChangeTag(){
 				let data = {
-					oldtag : this.changeTagform.beforName,
+					id : this.changeTagform.index,
 					newtag : this.changeTagform.afterName
 				}
 				this.axiosChangeTag( data );

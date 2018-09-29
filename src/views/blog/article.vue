@@ -1,11 +1,11 @@
 <template>
 	<div class="blog-container">
 
-		<!-- <mavon-editor v-model="value"/> -->
-
 		<el-row>
 			<el-col :span="24">
-				<el-button type="primary">新建文章</el-button>
+				<router-link to="/blog/new">
+					<el-button type="primary">写文章</el-button>
+				</router-link>				
 			</el-col>
 		</el-row>
 
@@ -49,10 +49,10 @@
 			</el-table-column>
 
 			<el-table-column
-				label="状态"
+				label="置顶"
 				width="100">
 				<template slot-scope="scope">
-					<span> {{ scope.row.top == 'true' ? '置顶' : '默认' }} </span>
+					<span> {{ scope.row.top == 'true' ? '是' : '否' }} </span>
 				</template>
 			</el-table-column>
 

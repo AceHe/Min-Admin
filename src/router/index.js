@@ -68,15 +68,21 @@ export const constantRouterMap = [
       name: 'article',
       meta: { title: '文章' }
     },{
-      path: 'categorized',
-      component: () => import('@/views/blog/categorized'),
-      name: 'categorized',
+      path: 'category',
+      component: () => import('@/views/blog/category'),
+      name: 'category',
       meta: { title: '分类' }
     },{
       path: 'tag',
       component: () => import('@/views/blog/tag'),
       name: 'tag',
       meta: { title: '标签' }
+    },{
+      path: 'new',
+      component: () => import('@/views/blog/articleEditor'),
+      name: 'new',
+      hidden: true,
+      meta: { title: '编辑文章' }
     }]
   },
 

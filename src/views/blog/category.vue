@@ -15,7 +15,7 @@
 			style="width: 100%">
 
 			<el-table-column
-				type="selection"
+				type="index"
 				width="55">
 			</el-table-column>
 
@@ -38,11 +38,11 @@
 				<template slot-scope="scope">
 					<el-button
 						size="mini"
-						@click="handChangeCate( scope.row.cate )">修改</el-button>
+						@click="handChangeCate( scope.row.cate, scope.row.id )">修改</el-button>
 					<el-button
 						size="mini"
 						type="danger"
-						@click="handDelCate( scope.row.cate )">删除</el-button>
+						@click="handDelCate( scope.row.cate, scope.row.id )">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -92,10 +92,10 @@
 </template>
 
 <script>
-	import { getCategorized, addCategorized, delCategorized, changeCategorized } from '@/api/blog/categorized'
+	import { getCategory, addCategory, delCategory, changeCategory } from '@/api/blog/category'
 
 	export default {
-		name: 'Categorized',
+		name: 'Category',
 		data() {
 			return {
 				tableData: [],  // 分类数据
@@ -108,19 +108,20 @@
 				changeCateform: {
 					beforName: '',
 					afterName: '',
+					index: ''
 				},
 
 
 			}
 		},
 		created() {
-			this.axiosGetCategorized();
+			this.axiosGetCategory();
 		},
 		methods: {
 
 			// 获取分类数据
-			axiosGetCategorized() {
-				getCategorized().then(res => {
+			axiosGetCategory() {
+				getCategory().then(res => {
 					this.tableData = res.data;
 
 					this.newCateform.name = '';
@@ -135,10 +136,10 @@
 			},
 
 			// 新增分类
-			axiosAddCategorized( cate ) {
-				addCategorized( cate ).then(res =>{
+			axiosAddCategory( cate ) {
+				addCategory( cate ).then(res =>{
 					if( res.code == 0 ){
-						this.axiosGetCategorized();
+						this.axiosGetCategory();
 					}else {
 						this.$notify.error({
 							title: '错误',
@@ -149,18 +150,18 @@
 			},
 
 			// 删除分类
-			axiosDelCategorized( cate ) {
-				delCategorized( cate ).then(res =>{
-					this.axiosGetCategorized();
+			axiosDelCategory( data ) {
+				delCategory( data ).then(res =>{
+					this.axiosGetCategory();
 				}).catch(error => {
 					console.log(error) // for debug
 				})
 			},
 
 			// 修改分类
-			axiosChangeCategorized( oldc, newc ) {
-				changeCategorized( oldc, newc ).then(res =>{
-					this.axiosGetCategorized();
+			axiosChangeCategory( data ) {
+				changeCategory( data ).then(res =>{
+					this.axiosGetCategory();
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -168,30 +169,41 @@
 
 			// 新增分类
 			submitAddNewCate() {
-				this.axiosAddCategorized(this.newCateform.name);
+				let data = {
+					category: this.newCateform.name
+				}
+				this.axiosAddCategory(data);
 			},
 
 			// 删除分类
-			handDelCate( cate ) {
+			handDelCate( cate, index ) {
 				this.$confirm('成功删除后，此分类下的文章剔除此分类！', '删除 '+cate+ ' 分类', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
-					this.axiosDelCategorized( cate );
+					let data = {
+						id: index
+					}
+					this.axiosDelCategory( data );
 				}).catch(action => {});
 			},
 
 			// 修改分类-dialog
-			handChangeCate( cate ) {
+			handChangeCate( cate, index ) {
 				this.changeCateform.beforName = cate;
 				this.changeCateform.afterName = cate;
+				this.changeCateform.index = index;
 				this.dialogChangeCateVisible = true;
 			},
 
 			// 修改分类-提交
 			submitChangeCate(){
-				this.axiosChangeCategorized( this.changeCateform.beforName, this.changeCateform.afterName );
+				let data = {
+					id: this.changeCateform.index,
+					newcate: this.changeCateform.afterName
+				}
+				this.axiosChangeCategory( data );
 			}
 
 		}
