@@ -80,7 +80,7 @@ export const constantRouterMap = [
     },{
       path: 'new',
       component: () => import('@/views/blog/articleEditor'),
-      name: 'new',
+      name: 'EditArticle',
       hidden: true,
       meta: { title: '编辑文章' }
     }]

@@ -16,7 +16,7 @@
 			style="width: 100%">
 
 			<el-table-column
-				type="selection"
+				type="index"
 				width="55">
 			</el-table-column>
 
@@ -67,11 +67,11 @@
 				<template slot-scope="scope">
 					<el-button
 						size="mini"
-						@click="handChangeTag( scope.row.tag )">修改</el-button>
+						@click="handChangeArtic( scope.row.id )">修改</el-button>
 					<el-button
 						size="mini"
 						type="danger"
-						@click="handDelTag( scope.row.tag )">删除</el-button>
+						@click="handDelArtic( scope.row.id )">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -81,7 +81,7 @@
 </template>
 
 <script>
-	import { getArticles } from '@/api/blog/article'
+	import { getArticles, delArticles } from '@/api/blog/article'
 	import { parseTime } from '@/utils/formatTime'
 
 	export default {
@@ -108,6 +108,37 @@
 				}).catch(error => {
 					console.log(error) // for debug
 				})
+			},
+
+			// 删除文章
+			axiosDelAarticles( data ) {
+				delArticles( data ).then(res =>{
+					this.axiosGetArticles();
+				}).catch(error => {
+					console.log(error) // for debug
+				})
+			},
+
+			// 删除文章
+			handDelArtic( index ) {
+				this.$confirm('一经删除，不可恢复！', '删除文章', {
+					distinguishCancelAndClose: true,
+					confirmButtonText: '确认删除',
+					cancelButtonText: '取消'
+				}).then(() => {
+					let data = {
+						id: index
+					}
+					this.axiosDelAarticles( data );
+				}).catch(action => {});
+			},
+
+			// 修改文章
+			handChangeArtic( index ) {
+				this.$router.push({
+					name: 'EditArticle',
+					params: {articid:index} 
+				});
 			}
 		}
 	}
