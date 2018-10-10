@@ -48,6 +48,17 @@
 		</el-table>
 		<!-- end of 分类表格 -->
 
+		<!-- start of 分页 -->
+		<el-pagination
+		 	class="pagination"
+		 	layout="total, prev, pager, next"
+		 	@current-change="handleCurrentChange"
+		 	:current-page="currentPage"
+		 	:page-size="pageSizes"
+		 	:total="pageTotal">
+		</el-pagination>
+		<!-- end of 分页 -->
+
 		<!-- start of 新增分类dialog -->
 		<el-dialog 
 			title="新增分类" 
@@ -111,6 +122,9 @@
 					index: ''
 				},
 
+				currentPage: 1,
+				pageSizes: 8,
+				pageTotal: 0
 
 			}
 		},
@@ -121,8 +135,13 @@
 
 			// 获取分类数据
 			axiosGetCategory() {
-				getCategory().then(res => {
+				let data = {
+					page: this.currentPage,
+					limt: this.pageSizes,
+				}
+				getCategory(data).then(res => {
 					this.tableData = res.data;
+					this.pageTotal = res.total;
 
 					this.newCateform.name = '';
 					this.dialogNewCateVisible = false;
@@ -204,6 +223,12 @@
 					newcate: this.changeCateform.afterName
 				}
 				this.axiosChangeCategory( data );
+			},
+
+			// 切换分页
+			handleCurrentChange(index) {
+				this.currentPage = index;
+				this.axiosGetCategory();
 			}
 
 		}
@@ -214,7 +239,12 @@
 	.blog {
 	  &-container {
 	    margin: 30px;
+	    .pagination {
+		  margin-top: 10px;
+	  	  text-align: right;
+		}
 	  }
+
 	  &-text {
 	    font-size: 30px;
 	    line-height: 46px;

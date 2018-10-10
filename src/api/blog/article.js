@@ -1,10 +1,11 @@
 import request from '@/utils/request'
 
-// 获取全部文章
-export function getArticles() {
+// 分页获取文章
+export function getArticles(data) {
   return request({
-    url: '/blog/article',
-    method: 'GET'
+    url: '/blog/articlebypage',
+    method: 'POST',
+    data: data
   })
 }
 

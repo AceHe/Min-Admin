@@ -1,10 +1,11 @@
 import request from '@/utils/request'
 
-// 获取标签
-export function getTags() {
+// 分页获取标签
+export function getTags(data) {
   return request({
-    url: '/blog/tag',
-    method: 'GET'
+    url: '/blog/tagbypage',
+    method: 'POST',
+    data: data
   })
 }
 

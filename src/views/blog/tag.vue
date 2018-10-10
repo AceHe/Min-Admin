@@ -48,6 +48,17 @@
 		</el-table>
 		<!-- end of 标签表格 -->
 
+		<!-- start of 分页 -->
+		<el-pagination
+		 	class="pagination"
+		 	layout="total, prev, pager, next"
+		 	@current-change="handleCurrentChange"
+		 	:current-page="currentPage"
+		 	:page-size="pageSizes"
+		 	:total="pageTotal">
+		</el-pagination>
+		<!-- end of 分页 -->
+
 		<!-- start of 新增标签dialog -->
 		<el-dialog 
 			title="新增标签" 
@@ -111,7 +122,9 @@
 					index: '',
 				},
 
-
+				currentPage: 1,
+				pageSizes: 8,
+				pageTotal: 0
 			}
 		},
 		created() {
@@ -121,8 +134,13 @@
 
 			// 获取标签数据
 			axiosGetTags() {
-				getTags().then(res => {
+				let data = {
+					page: this.currentPage,
+					limt: this.pageSizes,
+				}
+				getTags(data).then(res => {
 					this.tableData = res.data;
+					this.pageTotal = res.total;
 
 					this.newTagform.name = '';
 					this.dialogNewTagVisible = false;
@@ -201,8 +219,13 @@
 					newtag : this.changeTagform.afterName
 				}
 				this.axiosChangeTag( data );
-			}
+			},
 
+			// 切换分页
+			handleCurrentChange(index) {
+				this.currentPage = index;
+				this.axiosGetTags();
+			}
 
 		}
 	}
@@ -212,7 +235,12 @@
 	.blog {
 	  &-container {
 	    margin: 30px;
+	    .pagination {
+		  margin-top: 10px;
+	  	  text-align: right;
+		}
 	  }
+
 	  &-text {
 	    font-size: 30px;
 	    line-height: 46px;

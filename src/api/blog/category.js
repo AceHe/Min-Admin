@@ -1,10 +1,11 @@
 import request from '@/utils/request'
 
-// 获取分类
-export function getCategory() {
+// 分页获取分类
+export function getCategory(data) {
   return request({
-    url: '/blog/category',
-    method: 'GET'
+    url: '/blog/categorybypage',
+    method: 'POST',
+    data: data
   })
 }
 

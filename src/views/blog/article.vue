@@ -77,6 +77,17 @@
 		</el-table>
 		<!-- end of 文章表格 -->
 
+		<!-- start of 分页 -->
+		<el-pagination
+		 	class="pagination"
+		 	layout="total, prev, pager, next"
+		 	@current-change="handleCurrentChange"
+		 	:current-page="currentPage"
+		 	:page-size="pageSizes"
+		 	:total="pageTotal">
+		</el-pagination>
+		<!-- end of 分页 -->
+
 	</div>
 </template>
 
@@ -89,6 +100,10 @@
 		data(){
 			return {
 				tableData: [],  // 文章数据
+
+				currentPage: 1,
+				pageSizes: 8,
+				pageTotal: 0
 			}
 		},
 		created() {
@@ -103,8 +118,13 @@
 		methods: {
 			// 获取文章
 			axiosGetArticles() {
-				getArticles().then(res => {
+				let data = {
+					page: this.currentPage,
+					limt: this.pageSizes,
+				}
+				getArticles(data).then(res => {
 					this.tableData = res.data;
+					this.pageTotal = res.total;
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -139,6 +159,12 @@
 					name: 'EditArticle',
 					params: {articid:index} 
 				});
+			},
+
+			// 切换分页
+			handleCurrentChange(index) {
+				this.currentPage = index;
+				this.axiosGetArticles();
 			}
 		}
 	}
@@ -149,7 +175,12 @@
 	.blog {
 	  &-container {
 	    margin: 30px;
+	    .pagination {
+		  margin-top: 10px;
+	  	  text-align: right;
+		}
 	  }
+
 	  &-text {
 	    font-size: 30px;
 	    line-height: 46px;
