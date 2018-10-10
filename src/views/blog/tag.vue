@@ -11,6 +11,7 @@
 		<!-- start of 标签表格 -->
 		<el-table
 			:data="tableData"
+			v-loading="tableLoading"
 			stripe
 			style="width: 100%">
 
@@ -109,22 +110,24 @@
 		name: 'Tag',
 		data() {
 			return {
-				tableData: [],  // 标签数据
+				tableData: [], 		 // 表格标签数据
+				tableLoading: false, // 表格loading
 
 				dialogNewTagVisible: false,    // 新增标签dialog
-				dialogChangeTagVisible: false, // 修改标签dialog
 				newTagform: {
-					name: ''
-				},
-				changeTagform: {
-					beforName: '',
-					afterName: '',
-					index: '',
+					name: '' 	// 新增标签名称
 				},
 
-				currentPage: 1,
-				pageSizes: 8,
-				pageTotal: 0
+				dialogChangeTagVisible: false, // 修改标签dialog
+				changeTagform: {
+					beforName: '', 	// 修改前名称
+					afterName: '', 	// 修改后名称
+					index: '', 		// 当前标签ID
+				},
+
+				currentPage: 1, 	// 当前页码
+				pageSizes: 8, 		// 每页条目数
+				pageTotal: 0 		// 总条目数
 			}
 		},
 		created() {
@@ -134,17 +137,82 @@
 
 			// 获取标签数据
 			axiosGetTags() {
+				// 显示loading
+				this.tableLoading = true;
+
 				let data = {
 					page: this.currentPage,
 					limt: this.pageSizes,
 				}
 				getTags(data).then(res => {
-					this.tableData = res.data;
-					this.pageTotal = res.total;
+					if( res.code == 0 ){
+						// 保存数据
+						this.tableData = res.data;
+						this.pageTotal = res.total;
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+					this.tableLoading = false; // 隐藏loading
+				}).catch(error => {
+					this.tableLoading = false; // 隐藏loading
+					console.log(error) // for debug
+				})
+			},
 
+			// 新增标签
+			axiosAddTags( data ) {
+				addTags( data ).then(res =>{
+					if( res.code == 0 ){
+						// 跳转到第一页
+						this.currentPage = 1;
+						this.axiosGetTags();
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+					
+					// 重置新增标签信息
 					this.newTagform.name = '';
 					this.dialogNewTagVisible = false;
+				}).catch(error => {
+					console.log(error) // for debug
+				})
+			},
 
+			// 删除标签
+			axiosDelTags( data ) {
+				delTags( data ).then(res =>{
+					if( res.code == 0 ){
+						this.axiosGetTags();
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+				}).catch(error => {
+					console.log(error) // for debug
+				})
+			},
+
+			// 修改标签
+			axiosChangeTag( data ) {
+				changeTags( data ).then(res =>{
+					if( res.code == 0 ){
+						this.axiosGetTags();
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+
+					// 重置修改标签信息
 					this.changeTagform.beforName = '';
 					this.changeTagform.afterName = '';
 					this.changeTagform.index = '';
@@ -155,60 +223,34 @@
 			},
 
 			// 新增标签
-			axiosAddTags( data ) {
-				addTags( data ).then(res =>{
-					if( res.code == 0 ){
-						this.axiosGetTags();
-					}else {
-						this.$notify.error({
-							title: '错误',
-							message: res.message
-						});
-					}
-				})
-			},
-
-			// 删除标签
-			axiosDelTags( data ) {
-				delTags( data ).then(res =>{
-					this.axiosGetTags();
-				}).catch(error => {
-					console.log(error) // for debug
-				})
-			},
-
-			// 修改标签
-			axiosChangeTag( data ) {
-				changeTags( data ).then(res =>{
-					this.axiosGetTags();
-				}).catch(error => {
-					console.log(error) // for debug
-				})
-			},
-
-			// 新增标签
 			submitAddNewTag(){
-				let data = { tag: this.newTagform.name };
+				let data = { 
+					tag: this.newTagform.name
+				};
 				this.axiosAddTags( data );
 			},
 
 			// 删除标签
 			handDelTag( tag, index ){
-				this.$confirm('成功删除后，所有文章不再包含此标签！', '删除 '+tag+ ' 标签', {
+				this.$confirm('成功删除后，所有文章不再包含 '+tag+ ' 标签！', '警告', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
-					let data = { id: index };
+					let data = { 
+						id: index 
+					};
 					this.axiosDelTags( data );
 				}).catch(action => {});
 			},
 
 			// 修改标签-dialog
 			handChangeTag( tag, index ) {
+				// 保存修改前信息
 				this.changeTagform.beforName = tag;
 				this.changeTagform.afterName = tag;
 				this.changeTagform.index = index;
+
 				this.dialogChangeTagVisible = true;
 			},
 
@@ -223,6 +265,7 @@
 
 			// 切换分页
 			handleCurrentChange(index) {
+				// 保存当前分页
 				this.currentPage = index;
 				this.axiosGetTags();
 			}
