@@ -1,6 +1,7 @@
 <template>
 	<div class="blog-container">
-
+		
+		<!-- start of 顶部按钮 -->
 		<el-row>
 			<el-col :span="24">
 				<router-link to="/blog/new">
@@ -8,10 +9,12 @@
 				</router-link>				
 			</el-col>
 		</el-row>
+		<!-- end of 顶部按钮 -->
 
 		<!-- start of 文章表格 -->
 		<el-table
 			:data="tableData"
+			v-loading="tableLoading"
 			stripe
 			style="width: 100%">
 
@@ -99,17 +102,19 @@
 		name: 'Article',
 		data(){
 			return {
-				tableData: [],  // 文章数据
+				tableData: [], 		// 表格文章数据
+				tableLoading: false,// 表格loading
 
-				currentPage: 1,
-				pageSizes: 8,
-				pageTotal: 0
+				currentPage: 1, 	// 当前页码
+				pageSizes: 8, 		// 每页条目数
+				pageTotal: 0 		// 总条目数
 			}
 		},
 		created() {
 			this.axiosGetArticles();
 		},
 		filters: {
+			// 时间格式化 {y}-{m}-{d} {h}:{i}:{s}
 			formatTime: function (value) {
 				if (!value) return ''
 				return parseTime(value)
@@ -118,14 +123,27 @@
 		methods: {
 			// 获取文章
 			axiosGetArticles() {
+				// 显示loading
+				this.tableLoading = true;
+
 				let data = {
 					page: this.currentPage,
 					limt: this.pageSizes,
 				}
 				getArticles(data).then(res => {
-					this.tableData = res.data;
-					this.pageTotal = res.total;
+					if( res.code == 0 ){
+						// 保存数据
+						this.tableData = res.data;
+						this.pageTotal = res.total;
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+					this.tableLoading = false; // 隐藏loading
 				}).catch(error => {
+					this.tableLoading = false; // 隐藏loading
 					console.log(error) // for debug
 				})
 			},
@@ -133,7 +151,14 @@
 			// 删除文章
 			axiosDelAarticles( data ) {
 				delArticles( data ).then(res =>{
-					this.axiosGetArticles();
+					if( res.code == 0 ){
+						this.axiosGetArticles();
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -141,7 +166,7 @@
 
 			// 删除文章
 			handDelArtic( index ) {
-				this.$confirm('一经删除，不可恢复！', '删除文章', {
+				this.$confirm('一经删除，不可恢复！', '警告', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
@@ -155,6 +180,7 @@
 
 			// 修改文章
 			handChangeArtic( index ) {
+				// 跳转到文章编辑页
 				this.$router.push({
 					name: 'EditArticle',
 					params: {articid:index} 
@@ -163,6 +189,7 @@
 
 			// 切换分页
 			handleCurrentChange(index) {
+				// 保存当前分页
 				this.currentPage = index;
 				this.axiosGetArticles();
 			}

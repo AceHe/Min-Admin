@@ -1,12 +1,14 @@
 <template>
 	<div class="blog-container">
 
+		<!-- start of 顶部按钮 -->
 		<el-row>
 			<el-col :span="24">
 				<el-button type="primary"
 					@click="dialogNewTagVisible = true">新增标签</el-button>
 			</el-col>
 		</el-row>
+		<!-- end of 顶部按钮 -->
 	
 		<!-- start of 标签表格 -->
 		<el-table
@@ -165,6 +167,10 @@
 			// 新增标签
 			axiosAddTags( data ) {
 				addTags( data ).then(res =>{
+					// 重置新增标签信息
+					this.newTagform.name = '';
+					this.dialogNewTagVisible = false;
+
 					if( res.code == 0 ){
 						// 跳转到第一页
 						this.currentPage = 1;
@@ -175,10 +181,6 @@
 							message: res.message
 						});
 					}
-					
-					// 重置新增标签信息
-					this.newTagform.name = '';
-					this.dialogNewTagVisible = false;
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -203,6 +205,12 @@
 			// 修改标签
 			axiosChangeTag( data ) {
 				changeTags( data ).then(res =>{
+					// 重置修改标签信息
+					this.changeTagform.beforName = '';
+					this.changeTagform.afterName = '';
+					this.changeTagform.index = '';
+					this.dialogChangeTagVisible = false;
+					
 					if( res.code == 0 ){
 						this.axiosGetTags();
 					}else {
@@ -211,12 +219,6 @@
 							message: res.message
 						});
 					}
-
-					// 重置修改标签信息
-					this.changeTagform.beforName = '';
-					this.changeTagform.afterName = '';
-					this.changeTagform.index = '';
-					this.dialogChangeTagVisible = false;
 				}).catch(error => {
 					console.log(error) // for debug
 				})

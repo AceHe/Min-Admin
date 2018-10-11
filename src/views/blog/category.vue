@@ -1,16 +1,19 @@
 <template>
 	<div class="blog-container">
 
+		<!-- start of 顶部按钮 -->
 		<el-row>
 			<el-col :span="24">
 				<el-button type="primary"
 					@click="dialogNewCateVisible = true">新增分类</el-button>
 			</el-col>
 		</el-row>
+		<!-- end of 顶部按钮 -->
 	
 		<!-- start of 分类表格 -->
 		<el-table
 			:data="tableData"
+			v-loading="tableLoading"
 			stripe
 			style="width: 100%">
 
@@ -109,22 +112,24 @@
 		name: 'Category',
 		data() {
 			return {
-				tableData: [],  // 分类数据
+				tableData: [], 		 // 表格分类数据
+				tableLoading: false, // 表格loading
 
 				dialogNewCateVisible: false,    // 新增分类dialog
-				dialogChangeCateVisible: false, // 修改分类dialog
 				newCateform: {
-					name: ''
-				},
-				changeCateform: {
-					beforName: '',
-					afterName: '',
-					index: ''
+					name: '' 	// 新增分类名称
 				},
 
-				currentPage: 1,
-				pageSizes: 8,
-				pageTotal: 0
+				dialogChangeCateVisible: false, // 修改分类dialog
+				changeCateform: {
+					beforName: '', 	// 修改前名称
+					afterName: '', 	// 修改后名称
+					index: '' 		// 当前分类ID
+				},
+
+				currentPage: 1, 	// 当前页码
+				pageSizes: 8, 		// 每页条目数
+				pageTotal: 0 		// 总条目数
 
 			}
 		},
@@ -135,21 +140,27 @@
 
 			// 获取分类数据
 			axiosGetCategory() {
+				// 显示loading
+				this.tableLoading = true;
+
 				let data = {
 					page: this.currentPage,
 					limt: this.pageSizes,
 				}
 				getCategory(data).then(res => {
-					this.tableData = res.data;
-					this.pageTotal = res.total;
-
-					this.newCateform.name = '';
-					this.dialogNewCateVisible = false;
-
-					this.changeCateform.beforName = '';
-					this.changeCateform.afterName = '';
-					this.dialogChangeCateVisible = false;
+					if( res.code == 0 ){
+						// 保存数据
+						this.tableData = res.data;
+						this.pageTotal = res.total;
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+					this.tableLoading = false; // 隐藏loading
 				}).catch(error => {
+					this.tableLoading = false; // 隐藏loading
 					console.log(error) // for debug
 				})
 			},
@@ -157,6 +168,28 @@
 			// 新增分类
 			axiosAddCategory( cate ) {
 				addCategory( cate ).then(res =>{
+					// 重置新增分类信息
+					this.newCateform.name = '';
+					this.dialogNewCateVisible = false;
+
+					if( res.code == 0 ){
+						// 跳转到第一页
+						this.currentPage = 1;
+						this.axiosGetCategory();
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+				}).catch(error => {
+					console.log(error) // for debug
+				})
+			},
+
+			// 删除分类
+			axiosDelCategory( data ) {
+				delCategory( data ).then(res =>{
 					if( res.code == 0 ){
 						this.axiosGetCategory();
 					}else {
@@ -165,13 +198,6 @@
 							message: res.message
 						});
 					}
-				})
-			},
-
-			// 删除分类
-			axiosDelCategory( data ) {
-				delCategory( data ).then(res =>{
-					this.axiosGetCategory();
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -180,7 +206,20 @@
 			// 修改分类
 			axiosChangeCategory( data ) {
 				changeCategory( data ).then(res =>{
-					this.axiosGetCategory();
+					// 重置修改分类信息
+					this.changeCateform.beforName = '';
+					this.changeCateform.afterName = '';
+					this.changeCateform.index = '';
+					this.dialogChangeCateVisible = false;
+
+					if( res.code == 0 ){
+						this.axiosGetCategory();
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -196,23 +235,25 @@
 
 			// 删除分类
 			handDelCate( cate, index ) {
-				this.$confirm('成功删除后，此分类下的文章剔除此分类！', '删除 '+cate+ ' 分类', {
+				this.$confirm('成功删除后，所有文章不再包含 '+cate+ ' 分类！', '警告', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
 					let data = {
 						id: index
-					}
+					};
 					this.axiosDelCategory( data );
 				}).catch(action => {});
 			},
 
 			// 修改分类-dialog
 			handChangeCate( cate, index ) {
+				// 保存修改前信息
 				this.changeCateform.beforName = cate;
 				this.changeCateform.afterName = cate;
 				this.changeCateform.index = index;
+
 				this.dialogChangeCateVisible = true;
 			},
 
@@ -227,6 +268,7 @@
 
 			// 切换分页
 			handleCurrentChange(index) {
+				// 保存当前分页
 				this.currentPage = index;
 				this.axiosGetCategory();
 			}

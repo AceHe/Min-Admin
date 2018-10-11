@@ -1,5 +1,5 @@
 <template>
-	<div class="blog-container">
+	<div class="blog-container" v-loading="loading">
 		
 		<!-- 文章信息 -->
 		<el-form :inline="true" :model="form" label-width="80px">
@@ -83,30 +83,30 @@
 			return {
 				modifyArtic: {}, 	// 保存需要修改前内容
 				markdownContent: '',// markdown 内容
+				loading: false, 	// loading
 
-				categoryArr: [],
-				tagsArr: [],
+				categoryArr: [], 	// 分类数组
+				tagsArr: [], 		// 标签数组
 
 				form: {
-					category: '',
-					tag: '',
-					top: '',
-					time: '',
-					title: ''
+					category: '', 	// 文章分类
+					tag: '', 		// 文章标签
+					top: '', 		// 是否置顶
+					time: '', 		// 发布时间
+					title: '' 		// 文章标题
 				}
 			}
 		},
 		created() {
-
-			console.log( this.$route.params.articid )
-
+			// 修改文章前 先获取需要修改的文章信息
 			if( this.$route.params.articid ){
+				this.loading = true;
 				this.axiosGetArticles()
 			}
 
+			// 获取分类、标签数组
 			this.axiosGetCategory();
 			this.axiosGetTags();
-
 		},
 		methods: {
 
@@ -116,17 +116,28 @@
 					id: this.$route.params.articid
 				}
 				getArticlesById( data ).then(res => {
-					console.log( res.data );
-					this.modifyArtic = res.data[0];
+					if( res.code == 0 ){
+						this.modifyArtic = res.data[0];
 
-					this.form.category = this.modifyArtic.category;
-					this.form.tag = this.modifyArtic.tags;
-					this.form.top = this.modifyArtic.top;
-					this.form.time = this.modifyArtic.upload_time;
-					this.form.title = this.modifyArtic.title;
+						// 保存文章其他信息
+						this.form.category = this.modifyArtic.category;
+						this.form.tag = this.modifyArtic.tags;
+						this.form.top = this.modifyArtic.top;
+						this.form.time = this.modifyArtic.upload_time;
+						this.form.title = this.modifyArtic.title;
 
-					this.markdownContent = this.modifyArtic.markdown;
+						// 保存markdown内容
+						this.markdownContent = this.modifyArtic.markdown;
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
+
+					this.loading = false; // 隐藏loading
 				}).catch(error => {
+					this.loading = false; // 隐藏loading
 					console.log(error) // for debug
 				})
 			},
@@ -134,7 +145,14 @@
 			// 获取分类数据
 			axiosGetCategory() {
 				getCategory().then(res => {
-					this.categoryArr = res.data;
+					if( res.code == 0 ){
+						this.categoryArr = res.data;
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -143,7 +161,14 @@
 			// 获取标签数据
 			axiosGetTags() {
 				getTags().then(res => {
-					this.tagsArr = res.data;
+					if( res.code == 0 ){
+						this.tagsArr = res.data;
+					}else {
+						this.$notify.error({
+							title: '错误',
+							message: res.message
+						});
+					}
 				}).catch(error => {
 					console.log(error) // for debug
 				})
@@ -165,7 +190,7 @@
 				};
 				let data = {
 					artic: artic
-				}
+				};
 
 				// 发布新文章
 				if( !this.modifyArtic.id ){
@@ -193,9 +218,6 @@
 						}
 					})
 				}
-				
-
-
 			},
 
 			// 上传图片
