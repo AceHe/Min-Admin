@@ -3,7 +3,7 @@
  */
 
 export function isvalidUsername(str) {
-  const valid_map = ['admin', 'editor', 'hemin']
+  const valid_map = ['admin', 'visitors', 'hemin']
   return valid_map.indexOf(str.trim()) >= 0
 }
 
