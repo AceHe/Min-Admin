@@ -5,8 +5,7 @@ import { getToken } from '@/utils/auth'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://localhost:8080/', // api 的 base_url
-  // baseURL: 'http://65.49.193.77:30017/', // api 的 base_url
+  // baseURL: 'http://localhost:8080/', // api 的 base_url
   timeout: 60000 // 请求超时时间
 })
 
@@ -31,13 +30,13 @@ service.interceptors.response.use(
     const res = response.data;
     // success为非true是抛错
     // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
-    if (res.success !== true || res.code === 500012) {
-      // Message({
-      //   message: res.message,
-      //   type: 'error',
-      //   duration: 5 * 1000
-      // })
-      return Promise.reject(res.message)
+    if ( res.success !== true ) {
+      Message({
+        message: res.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject('Network Error!')
     } else {
       return response.data
     }
