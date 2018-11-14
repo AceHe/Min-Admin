@@ -26,13 +26,13 @@
 				label="标签"
 				width="200">
 				<template slot-scope="scope">
-					<el-tag size="medium">{{ scope.row.tag }}</el-tag>
+					<el-tag size="medium">{{ scope.row.name }}</el-tag>
 				</template>
 			</el-table-column>
 
 			<el-table-column
 				label="文章数量"
-				prop="articleNum"
+				prop="count"
 				sortable
 				width="200">
 			</el-table-column>
@@ -41,11 +41,11 @@
 				<template slot-scope="scope">
 					<el-button
 						size="mini"
-						@click="handChangeTag( scope.row.tag, scope.row.id )">修改</el-button>
+						@click="handChangeTag( scope.row.name, scope.row.uuid )">修改</el-button>
 					<el-button
 						size="mini"
 						type="danger"
-						@click="handDelTag( scope.row.tag, scope.row.id )">删除</el-button>
+						@click="handDelTag( scope.row.name, scope.row.uuid )">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -124,7 +124,7 @@
 				changeTagform: {
 					beforName: '', 	// 修改前名称
 					afterName: '', 	// 修改后名称
-					index: '', 		// 当前标签ID
+					uuid: '', 		// 当前标签ID
 				},
 
 				currentPage: 1, 	// 当前页码
@@ -208,7 +208,7 @@
 					// 重置修改标签信息
 					this.changeTagform.beforName = '';
 					this.changeTagform.afterName = '';
-					this.changeTagform.index = '';
+					this.changeTagform.uuid = '';
 					this.dialogChangeTagVisible = false;
 					
 					if( res.code == 0 ){
@@ -227,31 +227,31 @@
 			// 新增标签
 			submitAddNewTag(){
 				let data = { 
-					tag: this.newTagform.name
+					name: this.newTagform.name
 				};
 				this.axiosAddTags( data );
 			},
 
 			// 删除标签
-			handDelTag( tag, index ){
-				this.$confirm('成功删除后，所有文章不再包含 '+tag+ ' 标签！', '警告', {
+			handDelTag( name, uuid ){
+				this.$confirm('成功删除后，所有文章不再包含 '+name+ ' 标签！', '警告', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
 					let data = { 
-						id: index 
+						uuid: uuid 
 					};
 					this.axiosDelTags( data );
 				}).catch(action => {});
 			},
 
 			// 修改标签-dialog
-			handChangeTag( tag, index ) {
+			handChangeTag( name, uuid ) {
 				// 保存修改前信息
-				this.changeTagform.beforName = tag;
-				this.changeTagform.afterName = tag;
-				this.changeTagform.index = index;
+				this.changeTagform.beforName = name;
+				this.changeTagform.afterName = name;
+				this.changeTagform.uuid = uuid;
 
 				this.dialogChangeTagVisible = true;
 			},
@@ -259,7 +259,7 @@
 			// 修改标签-提交
 			submitChangeTag(){
 				let data = {
-					id : this.changeTagform.index,
+					uuid : this.changeTagform.uuid,
 					newtag : this.changeTagform.afterName
 				}
 				this.axiosChangeTag( data );

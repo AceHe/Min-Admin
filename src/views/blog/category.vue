@@ -26,13 +26,13 @@
 				label="分类"
 				width="200">
 				<template slot-scope="scope">
-					<el-tag size="medium">{{ scope.row.cate }}</el-tag>
+					<el-tag size="medium">{{ scope.row.name }}</el-tag>
 				</template>
 			</el-table-column>
 
 			<el-table-column
 				label="文章数量"
-				prop="articleNum"
+				prop="count"
 				sortable
 				width="200">
 			</el-table-column>
@@ -41,11 +41,11 @@
 				<template slot-scope="scope">
 					<el-button
 						size="mini"
-						@click="handChangeCate( scope.row.cate, scope.row.id )">修改</el-button>
+						@click="handChangeCate( scope.row.name, scope.row.uuid )">修改</el-button>
 					<el-button
 						size="mini"
 						type="danger"
-						@click="handDelCate( scope.row.cate, scope.row.id )">删除</el-button>
+						@click="handDelCate( scope.row.name, scope.row.uuid )">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -124,7 +124,7 @@
 				changeCateform: {
 					beforName: '', 	// 修改前名称
 					afterName: '', 	// 修改后名称
-					index: '' 		// 当前分类ID
+					uuid: '' 		// 当前分类ID
 				},
 
 				currentPage: 1, 	// 当前页码
@@ -166,8 +166,8 @@
 			},
 
 			// 新增分类
-			axiosAddCategory( cate ) {
-				addCategory( cate ).then(res =>{
+			axiosAddCategory( data ) {
+				addCategory( data ).then(res =>{
 					// 重置新增分类信息
 					this.newCateform.name = '';
 					this.dialogNewCateVisible = false;
@@ -209,7 +209,7 @@
 					// 重置修改分类信息
 					this.changeCateform.beforName = '';
 					this.changeCateform.afterName = '';
-					this.changeCateform.index = '';
+					this.changeCateform.uuid = '';
 					this.dialogChangeCateVisible = false;
 
 					if( res.code == 0 ){
@@ -228,31 +228,31 @@
 			// 新增分类
 			submitAddNewCate() {
 				let data = {
-					category: this.newCateform.name
+					name: this.newCateform.name
 				}
 				this.axiosAddCategory(data);
 			},
 
 			// 删除分类
-			handDelCate( cate, index ) {
-				this.$confirm('成功删除后，所有文章不再包含 '+cate+ ' 分类！', '警告', {
+			handDelCate( name, uuid ) {
+				this.$confirm('成功删除后，所有文章不再包含 '+name+ ' 分类！', '警告', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
 					let data = {
-						id: index
+						uuid: uuid
 					};
 					this.axiosDelCategory( data );
 				}).catch(action => {});
 			},
 
 			// 修改分类-dialog
-			handChangeCate( cate, index ) {
+			handChangeCate( name, uuid ) {
 				// 保存修改前信息
-				this.changeCateform.beforName = cate;
-				this.changeCateform.afterName = cate;
-				this.changeCateform.index = index;
+				this.changeCateform.beforName = name;
+				this.changeCateform.afterName = name;
+				this.changeCateform.uuid = uuid;
 
 				this.dialogChangeCateVisible = true;
 			},
@@ -260,9 +260,10 @@
 			// 修改分类-提交
 			submitChangeCate(){
 				let data = {
-					id: this.changeCateform.index,
+					uuid: this.changeCateform.uuid,
 					newcate: this.changeCateform.afterName
 				}
+
 				this.axiosChangeCategory( data );
 			},
 

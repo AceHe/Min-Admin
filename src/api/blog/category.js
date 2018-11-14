@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 分页获取分类
 export function getCategory(data) {
   return request({
-    url: '/api/blog/categorybypage',
+    url: '/api/admin/categorybypage',
     method: 'POST',
     data: data
   })
@@ -12,7 +12,7 @@ export function getCategory(data) {
 // 添加分类
 export function addCategory(data) {
   return request({
-    url: '/api/blog/category',
+    url: '/api/admin/category',
     method: 'POST',
     data: data
   })
@@ -21,7 +21,7 @@ export function addCategory(data) {
 // 删除分类
 export function delCategory(data) {
   return request({
-    url: '/api/blog/category',
+    url: '/api/admin/category',
     method: 'DELETE',
     data: data
   })
@@ -30,7 +30,7 @@ export function delCategory(data) {
 // 修改分类
 export function changeCategory(data) {
   return request({
-    url: '/api/blog/category',
+    url: '/api/admin/category',
     method: 'PUT',
     data: data
   })
