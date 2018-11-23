@@ -5,16 +5,18 @@
 		<el-form :inline="true" :model="form" label-width="80px">
 
 			<el-row>
-				<el-col :span="24">
+				<el-col :span="6">
 					<el-form-item label="分类">
 						<el-select v-model="form.category" placeholder="请选择分类">
 							<el-option v-for="(item,index) in categoryArr"
 								:key="index"
-								:label="item.cate"
-								:value="item.cate"></el-option>
+								:label="item.name"
+								:value="item.uuid"></el-option>
 						</el-select>
 					</el-form-item>
+				</el-col>
 
+				<el-col :span="6">
 					<el-form-item label="标签">
 						<el-select 
 						 	multiple
@@ -23,34 +25,78 @@
 							placeholder="请选择标签">
 							<el-option v-for="(item,index) in tagsArr"
 								:key="index"
-								:label="item.tag"
-								:value="item.tag"></el-option>
+								:label="item.name"
+								:value="item.uuid"></el-option>
 							</el-select>
 					</el-form-item>
+				</el-col>
 
+				<el-col :span="6">
 					<el-form-item label="置顶">
-						<el-select v-model="form.top" placeholder="请选择状态">
-							<el-option label="否" value="false"></el-option>
-							<el-option label="是" value="true"></el-option>
+						<el-select v-model="form.hots" placeholder="请选择状态">
+							<el-option v-for="(item,index) in hotsOption"
+								:key="index"
+								:label="item.name"
+								:value="item.value"></el-option>
 						</el-select>
-					</el-form-item>		
+					</el-form-item>	
+				</el-col>
 
-					<el-form-item label="发布日期">
-						<el-date-picker
-							v-model="form.time"
-							type="datetime"
-							placeholder="选择日期时间">
-							</el-date-picker>
+				<el-col :span="6">
+					<el-form-item label="来源">
+						<el-select v-model="form.source" placeholder="请选择来源">
+							<el-option v-for="(item,index) in sourceOption"
+								:key="index"
+								:label="item.name"
+								:value="item.value"></el-option>
+						</el-select>
+					</el-form-item>
+				</el-col>	
+
+				<el-col :span="18">
+					<el-form-item label="来源地址" v-if="form.source != 1">
+						<el-input v-model="form.from" placeholder="来源地址" class="w-title"></el-input>
 					</el-form-item>						
 				</el-col>
-			</el-row>
 
-			<el-row>
-				<el-col :span="24">
+				<el-col :span="12">
 					<el-form-item label="文章标题">
 						<el-input v-model="form.title" placeholder="文章标题" class="w-title"></el-input>
 					</el-form-item>
+				</el-col>
 
+				<el-col :span="6">
+					<el-form-item label="发布日期" v-if="!this.modifyArtic.uuid">
+						<el-date-picker
+							v-model="form.creatTime"
+							type="datetime"
+							value-format="timestamp"
+							placeholder="选择日期时间">
+							</el-date-picker>
+					</el-form-item>
+					<el-form-item label="更新日期" v-else>
+						<el-date-picker
+							v-model="form.updataTime"
+							type="datetime"
+							value-format="timestamp"
+							placeholder="选择日期时间">
+							</el-date-picker>
+					</el-form-item>	
+				</el-col>
+
+				<el-col :span="6">
+					<el-form-item label="大图地址">
+						<el-input v-model="form.thumb" placeholder="大图地址"></el-input>
+					</el-form-item>						
+				</el-col>
+
+				<el-col :span="12">
+					<el-form-item label="文章摘要">
+						<el-input v-model="form.description" placeholder="文章摘要" class="w-title"></el-input>
+					</el-form-item>
+				</el-col>
+
+				<el-col :span="6">
 					<el-form-item>
 						<el-button type="primary">发布文章</el-button>
 						<el-button type="primary">存为草稿</el-button>
@@ -89,17 +135,38 @@
 				tagsArr: [], 		// 标签数组
 
 				form: {
-					category: '', 	// 文章分类
-					tag: '', 		// 文章标签
-					top: '', 		// 是否置顶
-					time: '', 		// 发布时间
-					title: '' 		// 文章标题
-				}
+					category: '', 	// 分类
+					tag: [], 		// 标签
+					hots: 0, 		// 热门文章
+					creatTime: new Date().getTime(),  // 发布时间
+					updataTime: new Date().getTime(), // 更新时间
+					source: 1,		// 来源
+					from: '',		// 来源地址
+					thumb: '',		// 大图地址
+					title: '',		// 标题
+					description: '' // 描述
+				},
+
+				hotsOption: [{
+					value: false,
+					name: '否'
+				},{
+					value: true,
+					name: '是'
+				}],
+				sourceOption: [{
+					value: 1,
+					name: '原创'
+				},{
+					value: 2,
+					name: '转载'
+				}]
 			}
 		},
 		created() {
 			// 修改文章前 先获取需要修改的文章信息
-			if( this.$route.params.articid ){
+			console.log( this.$route.params.uuid )
+			if( this.$route.params.uuid ){
 				this.loading = true;
 				this.axiosGetArticles()
 			}
@@ -113,18 +180,30 @@
 			// 获取文章
 			axiosGetArticles() {
 				let data = {
-					id: this.$route.params.articid
+					uuid: this.$route.params.uuid
 				}
 				getArticlesById( data ).then(res => {
+					console.log(res)
 					if( res.code == 0 ){
-						this.modifyArtic = res.data[0];
+						this.modifyArtic = res.data;
 
 						// 保存文章其他信息
-						this.form.category = this.modifyArtic.category;
-						this.form.tag = this.modifyArtic.tags;
-						this.form.top = this.modifyArtic.top;
-						this.form.time = this.modifyArtic.upload_time;
+						this.form.category = this.modifyArtic.category.uuid;
+						this.form.tag = []
+						for( let ietm of this.modifyArtic.tag ){
+							this.form.tag.push( ietm.uuid )
+						}
+						// this.form.tag = this.modifyArtic.tag;
+
+
+						this.form.hots = this.modifyArtic.hots;
+						this.form.creatTime = parseInt(this.modifyArtic.createdAt);
+						this.form.updataTime = parseInt(this.modifyArtic.updatedAt);
+						this.form.source = this.modifyArtic.source;
+						this.form.from = this.modifyArtic.from;
+						this.form.thumb = this.modifyArtic.thumb;
 						this.form.title = this.modifyArtic.title;
+						this.form.description = this.modifyArtic.description;
 
 						// 保存markdown内容
 						this.markdownContent = this.modifyArtic.markdown;
@@ -147,6 +226,7 @@
 				getCategory().then(res => {
 					if( res.code == 0 ){
 						this.categoryArr = res.data;
+						console.log( this.categoryArr )
 					}else {
 						this.$notify.error({
 							title: '错误',
@@ -176,24 +256,51 @@
 
 			// 发布文章
 			saveBlog(value, render) {
-				let artic = {
-					id: this.modifyArtic.id,
-					title: this.form.title,
-					markdown: value,
-					render: render,
-					category: this.form.category,
-					tags: this.form.tag,
-					upload_time: new Date(this.form.time).getTime(),
-					read_num: 0,
-					author: 'hemin',
-					top: this.form.top
-				};
-				let data = {
-					artic: artic
+				let articObj = {
+					'description': this.form.description,
+					'renderedContent': render,
+					'markdown': value,
+					'title': this.form.title,
+					'thumb': this.form.thumb,
+					'category': {},
+					'tag': [],
+					'createdAt': new Date(this.form.creatTime).getTime(),
+					'updatedAt': new Date(this.form.updataTime).getTime(),
+					'source': this.form.source,
+					'from': this.form.from,
+					'hots': this.form.hots
 				};
 
+				// 整理 分类 数据
+				for( let itemC of this.categoryArr ){
+					if( itemC.uuid == this.form.category ){
+						let obj = {
+							icon: itemC.icon,
+							uuid: itemC.uuid,
+							name: itemC.name
+						}
+						articObj.category = obj;
+					}
+				}
+
+				// 整理 标签 数据
+				for( let itemT of this.tagsArr ){
+					for( let itemFT of this.form.tag ){
+						if( itemT.uuid == itemFT ){
+							let obj = {
+								icon: itemT.icon,
+								uuid: itemT.uuid,
+								name: itemT.name
+							}
+							articObj.tag.push(obj);
+						}
+					}
+				}
+
+				let data = articObj;
+
 				// 发布新文章
-				if( !this.modifyArtic.id ){
+				if( !this.modifyArtic.uuid ){
 					addArticles(data).then(res =>{
 						if( res.code == 0 ){
 							this.$router.push({path: '/blog/article'});
@@ -205,8 +312,9 @@
 						}
 					})
 				}
-				// 跟新文章
+				// 更新文章
 				else {
+					data.uuid = this.modifyArtic.uuid;
 					changeArticles( data ).then(res =>{
 						if( res.code == 0 ){
 							this.$router.push({path: '/blog/article'});

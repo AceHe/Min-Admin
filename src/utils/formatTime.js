@@ -12,7 +12,7 @@ export function parseTime(time, cFormat) {
     date = time
   } else {
     if (('' + time).length === 10) time = parseInt(time) * 1000
-    date = new Date(time)
+    date = new Date( parseInt(time) )
   }
   const formatObj = {
     y: date.getFullYear(),

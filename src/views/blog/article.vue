@@ -31,7 +31,7 @@
 
 			<el-table-column
 				label="分类"
-				prop="category"
+				prop="category.name"
 				width="150">
 			</el-table-column>
 
@@ -39,30 +39,31 @@
 				label="标签"
 				width="300">
 				<template slot-scope="scope">
-					<el-tag v-for="(item,index) in scope.row.tags"
+					<el-tag v-for="(item,index) in scope.row.tag"
 						:key="index"
-						size="medium">{{ item }}</el-tag>
+						size="medium">{{ item.name }}</el-tag>
 				</template>
-			</el-table-column>
-
-			<el-table-column
-				label="阅读量"
-				prop="read_num"
-				width="100">
 			</el-table-column>
 
 			<el-table-column
 				label="置顶"
 				width="100">
 				<template slot-scope="scope">
-					<span> {{ scope.row.top == 'true' ? '是' : '否' }} </span>
+					<span> {{ scope.row.hots ? '是' : '否' }} </span>
 				</template>
 			</el-table-column>
 
 			<el-table-column
 				label="发布时间">
 				<template slot-scope="scope">
-					<span> {{ scope.row.upload_time | formatTime }} </span>
+					<span> {{ scope.row.createdAt | formatTime }} </span>
+				</template>
+			</el-table-column>
+
+			<el-table-column
+				label="更新时间">
+				<template slot-scope="scope">
+					<span> {{ scope.row.updatedAt | formatTime }} </span>
 				</template>
 			</el-table-column>
 
@@ -70,11 +71,11 @@
 				<template slot-scope="scope">
 					<el-button
 						size="mini"
-						@click="handChangeArtic( scope.row.id )">修改</el-button>
+						@click="handChangeArtic( scope.row.uuid )">修改</el-button>
 					<el-button
 						size="mini"
 						type="danger"
-						@click="handDelArtic( scope.row.id )">删除</el-button>
+						@click="handDelArtic( scope.row.uuid, scope.row.category, scope.row.tag, scope.row.createdAt )">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -165,14 +166,20 @@
 			},
 
 			// 删除文章
-			handDelArtic( index ) {
+			handDelArtic( uuid, category, tag, createdAt ) {
 				this.$confirm('一经删除，不可恢复！', '警告', {
 					distinguishCancelAndClose: true,
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
+					console.log('删除', new Date( parseInt(createdAt) ).getTime())
+					let year = new Date( parseInt(createdAt) ).getTime();
+
 					let data = {
-						id: index
+						uuid: uuid,
+						year: year,
+						category: category,
+						tag: tag
 					}
 					this.axiosDelAarticles( data );
 				}).catch(action => {});
@@ -183,7 +190,7 @@
 				// 跳转到文章编辑页
 				this.$router.push({
 					name: 'EditArticle',
-					params: {articid:index} 
+					params: {uuid:index}
 				});
 			},
 

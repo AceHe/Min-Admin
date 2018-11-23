@@ -21,7 +21,7 @@ export function getArticlesById(data) {
 // 添加文章
 export function addArticles(data) {
   return request({
-    url: '/api/admin/article',
+    url: '/api/admin/article/create',
     method: 'POST',
     data: data
   })
