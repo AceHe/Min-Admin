@@ -172,12 +172,9 @@
 					confirmButtonText: '确认删除',
 					cancelButtonText: '取消'
 				}).then(() => {
-					console.log('删除', new Date( parseInt(createdAt) ).getTime())
-					let year = new Date( parseInt(createdAt) ).getTime();
-
 					let data = {
 						uuid: uuid,
-						year: year,
+						time: createdAt,
 						category: category,
 						tag: tag
 					}

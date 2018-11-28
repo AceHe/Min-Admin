@@ -137,7 +137,7 @@
 				form: {
 					category: '', 	// 分类
 					tag: [], 		// 标签
-					hots: 0, 		// 热门文章
+					hots: false, 		// 热门文章
 					creatTime: new Date().getTime(),  // 发布时间
 					updataTime: new Date().getTime(), // 更新时间
 					source: 1,		// 来源

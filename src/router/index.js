@@ -53,6 +53,11 @@ export const constantRouterMap = [
       component: () => import('@/views/website/siteconfig'),
       name: 'siteconfig',
       meta: { title: '网站配置' }
+    },{
+      path: 'friendlinks',
+      component: () => import('@/views/website/friendlinks'),
+      name: 'friendlinks',
+      meta: { title: '友情链接' }
     }]
   },
 
