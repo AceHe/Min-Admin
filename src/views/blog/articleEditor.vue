@@ -114,6 +114,7 @@
 			@save="saveBlog"
 			@imgAdd="$imgAdd"
 			/>
+
 	</div>
 </template>
 
